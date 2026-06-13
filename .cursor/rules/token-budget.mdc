@@ -1,0 +1,24 @@
+---
+description: Protect Cursor Ultra token budget — no expensive subagent models unless user asks
+alwaysApply: true
+---
+
+# Token Budget (Hard Rule)
+
+Protect the user's Cursor Ultra monthly allotment. Default to the cheapest path that works.
+
+## Subagent models
+
+- **NEVER** launch Task subagents with `gpt-5.3-codex`, `claude-4.6-opus-high-thinking`, or other premium/heavy models unless the user **explicitly** requests that model by name.
+- **Default**: do the work in the main agent. No subagent for routine refactors, file moves, lint fixes, or docs.
+- **If a subagent is truly needed**: use `composer-2.5-fast`, or `explore` / `generalPurpose` without a premium `model` param.
+- **Do not** parallel-launch multiple subagents for tasks you can do with direct tool calls.
+
+## When premium models are allowed
+
+Only when the user says something like: "use Codex", "use Opus for this", or names a specific expensive model for that task.
+
+## Refactor discipline
+
+- Prefer incremental edits over "rewrite the world" subagent delegations.
+- For MCP servers: keep `server.py` thin; put portmanteau `@mcp.tool()` defs in `tools/`; put business logic in `handlers/` (no FastMCP imports in handlers).

@@ -1,9 +1,9 @@
-﻿param(
+param(
     [switch]$Headless,
     [switch]$BackendOnly,
     [switch]$FrontendOnly,
-    [switch]$NoBrowser
-)
+    [switch]$NoBrowser,
+    [switch]$ReuseIfRunning)
 
 $WebPort = 10890
 $McpPort = 10891
@@ -19,7 +19,21 @@ if (-not (Test-Path -LiteralPath $FleetStartPath)) {
 $FleetStart = Initialize-FleetStartMode @PSBoundParameters
 Enter-FleetHeadlessConsole -Headless:$Headless -BackendOnly:$BackendOnly
 
-Stop-FleetPortSquatters -Ports @($WebPort, $McpPort, $WebApiPort) -Label "sdr-mcp"
+$portResolve = @{
+    Ports      = @($WebPort, $McpPort, $WebApiPort)
+    Label      = "sdr-mcp"
+    AllowReuse = $ReuseIfRunning
+}
+if ($ReuseIfRunning) {
+    $portResolve.HealthChecks = @{
+        $WebPort = "http://127.0.0.1:$WebPort/"
+        $McpPort = "http://127.0.0.1:$McpPort/api/health"
+        $WebApiPort = "http://127.0.0.1:$WebApiPort/api/health"
+    }
+}
+$portState = Resolve-FleetPortConflict @portResolve
+if ($portState.Action -eq 'Blocked') { exit 1 }
+if ($portState.Reuse) { return }
 
 $PortHelpers = Join-Path $ProjectRoot "scripts\PortHelpers.ps1"
 if (Test-Path -LiteralPath $PortHelpers) {
@@ -27,9 +41,7 @@ if (Test-Path -LiteralPath $PortHelpers) {
     Stop-RepoConsoleScriptLock -RepoRoot $ProjectRoot -ScriptNames @("sdr-mcp")
 }
 
-Stop-FleetPortSquatters -Ports @($WebPort, $McpPort, $WebApiPort) -Label "sdr-mcp"
 
-if (-not (Assert-FleetPortsAvailable -Ports @($WebPort, $McpPort, $WebApiPort) -Label "sdr-mcp")) { exit 1 }
 
 # --- Prereq check (fleet standard) ---
 $env:PATH = [System.Environment]::GetEnvironmentVariable("PATH","Machine") + ";" +
@@ -94,9 +106,9 @@ if ($FleetStart.RunBackend) {
 
     $healthUrl = "http://127.0.0.1:$WebApiPort/api/health"
     $attempt = 0
-    while ($attempt -lt 45) {
+    while ($attempt -lt 15) {
         try {
-            $null = Invoke-WebRequest -Uri $healthUrl -UseBasicParsing -TimeoutSec 3 -ErrorAction Stop
+            $null = Invoke-WebRequest -Uri $healthUrl -UseBasicParsing -TimeoutSec 3 -ErrorAction SilentlyContinue
             Write-Host "Backend ready at $healthUrl" -ForegroundColor Green
             break
         } catch {
@@ -104,7 +116,7 @@ if ($FleetStart.RunBackend) {
             $attempt++
         }
     }
-    if ($attempt -ge 45) {
+    if ($attempt -ge 15) {
         Write-Host "Web API did not respond in time. Check the backend window for bind errors." -ForegroundColor Yellow
     }
 }
@@ -121,4 +133,9 @@ if (-not $FleetStart.SkipBrowser) {
 
 Write-Host "Starting Vite frontend on port $WebPort ..." -ForegroundColor Green
 Write-Host "Browser will open automatically when Vite is ready." -ForegroundColor Gray
+for ($i = 0; $i -lt 10; $i++) {
+    $listeners = Get-NetTCPConnection -LocalPort $WebPort -ErrorAction SilentlyContinue
+    if (-not $listeners) { break }
+    Start-Sleep -Milliseconds 500
+}
 npm run dev -- --port $WebPort --host 127.0.0.1 --strictPort
