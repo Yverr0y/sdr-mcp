@@ -60,7 +60,9 @@ async def get_spectrum() -> dict[str, Any]:
                 conversation_msg = f"Found {signal_peaks} signal(s) in the {center_freq:.1f} MHz range."
                 expertise_level = "intermediate"
             else:
-                conversation_msg = f"Quiet spectrum at {center_freq:.1f} MHz. This might be a good baseline for signal detection."
+                conversation_msg = (
+                    f"Quiet spectrum at {center_freq:.1f} MHz. This might be a good baseline for signal detection."
+                )
                 expertise_level = "beginner"
 
             return {

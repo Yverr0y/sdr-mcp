@@ -238,7 +238,9 @@ async def tune_preset(preset_name: str) -> dict[str, Any]:
                     "message": f"I couldn't find '{preset_name}' in our station database.",
                     "longwave_stations": available_presets,
                     "suggestions": [
-                        f"Try: sdr_tune_preset('{lw_stations[0].callsign}') for {lw_stations[0].name}" if lw_stations else "",
+                        f"Try: sdr_tune_preset('{lw_stations[0].callsign}') for {lw_stations[0].name}"
+                        if lw_stations
+                        else "",
                         "Use: sdr_search_stations('BBC') to search by name",
                         "Try: sdr_get_stations_by_band('LW') for all longwave stations",
                         "Use: sdr_set_frequency(198.0) for manual tuning to 198 MHz",
@@ -465,10 +467,14 @@ async def scan_frequencies(start_freq: float, end_freq: float, step_size: float 
                     if spectrum:
                         avg_power = sum(spectrum) / len(spectrum)
                         if max_power > avg_power + 15:
-                            detected_signals.append({"frequency": current_freq, "power": max_power, "strength": "strong"})
+                            detected_signals.append(
+                                {"frequency": current_freq, "power": max_power, "strength": "strong"}
+                            )
                             conversation_progress.append(f"Strong signal detected at {current_freq:.1f} MHz")
                         elif max_power > avg_power + 5:
-                            detected_signals.append({"frequency": current_freq, "power": max_power, "strength": "moderate"})
+                            detected_signals.append(
+                                {"frequency": current_freq, "power": max_power, "strength": "moderate"}
+                            )
 
                 current_freq += step_size
                 await asyncio.sleep(0)
@@ -482,7 +488,9 @@ async def scan_frequencies(start_freq: float, end_freq: float, step_size: float 
             scan_assessment = "Quiet band - no significant signals detected."
             expertise_level = "beginner"
         elif strong_signals > 0:
-            scan_assessment = f"Active band! Found {strong_signals} strong and {total_signals - strong_signals} moderate signals."
+            scan_assessment = (
+                f"Active band! Found {strong_signals} strong and {total_signals - strong_signals} moderate signals."
+            )
             expertise_level = "advanced"
         else:
             scan_assessment = f"Some activity detected - {total_signals} moderate signals found."
@@ -524,10 +532,13 @@ async def scan_frequencies(start_freq: float, end_freq: float, step_size: float 
                 "message": scan_assessment,
                 "expertise_level": expertise_level,
                 "scan_summary": f"Completed frequency sweep from {start_freq:.1f} to {end_freq:.1f} MHz in {scan_duration:.1f} seconds.",
-                "key_findings": conversation_progress[-5:] if conversation_progress else ["Scan completed successfully"],
+                "key_findings": conversation_progress[-5:]
+                if conversation_progress
+                else ["Scan completed successfully"],
                 "band_context": band_analysis,
                 "next_recommendations": [
-                    "Focus on strongest signals: " + ", ".join([f"{s['frequency']:.1f} MHz" for s in detected_signals[:3]])
+                    "Focus on strongest signals: "
+                    + ", ".join([f"{s['frequency']:.1f} MHz" for s in detected_signals[:3]])
                     if detected_signals
                     else "Try different frequency ranges",
                     "Use sdr_tune_preset() for known stations",

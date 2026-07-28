@@ -1,0 +1,15 @@
+{
+  "name": "sdr-mcp",
+  "version": "0.4.2",
+  "description": "SDR (Software Defined Radio) MCP Server: RTL-SDR spectrum, waterfall, FM audio, station databases, and GNU Radio demod sidecar",
+  "author": "sandraschi",
+  "tags": ["mcp", "fastmcp", "sdr", "rtl-sdr", "gnuradio", "spectrum-analyzer", "radio"],
+  "homepage": "https://github.com/sandraschi/sdr-mcp",
+  "features": {
+    "sdr_device": {"tools": ["list", "initialize", "status", "tune", "scan", "health", "mock_mode"]},
+    "sdr_spectrum": {"tools": ["spectrum", "waterfall", "websocket"]},
+    "sdr_stations": {"tools": ["search", "by_band", "schedule", "stats"]},
+    "sdr_online": {"tools": ["radio-browser", "signal_id"]},
+    "sdr_gnuradio": {"tools": ["FM/AM/SSB demod sidecar"]}
+  }
+}

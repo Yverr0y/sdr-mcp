@@ -66,8 +66,7 @@ def serve(http_mode: bool, port: int | None, host: str | None, no_web_api: bool,
                     style="bold red",
                 )
                 console.print(
-                    "Port likely in use. Close other sdr-mcp windows or run start.ps1 "
-                    "(it clears ports 10890-10892).",
+                    "Port likely in use. Close other sdr-mcp windows or run start.ps1 (it clears ports 10890-10892).",
                     style="yellow",
                 )
                 console.print(

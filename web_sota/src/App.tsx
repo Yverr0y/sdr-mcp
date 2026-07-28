@@ -15,6 +15,7 @@ import { Stations } from "@/pages/stations";
 import { Status } from "@/pages/status";
 import { Tools } from "@/pages/tools";
 import { Waterfall } from "@/pages/waterfall";
+import Logging from "@/pages/Logging";
 
 function App() {
   return (
@@ -31,6 +32,7 @@ function App() {
           <Route path="/spectrum" element={<Spectrum />} />
           <Route path="/waterfall" element={<Waterfall />} />
           <Route path="/stations" element={<Stations />} />
+          <Route path="/logs" element={<Logging />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </AppLayout>

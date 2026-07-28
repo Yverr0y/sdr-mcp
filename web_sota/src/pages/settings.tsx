@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { API_BASE } from "@/lib/api";
 import { getApiBase, setApiBase, testConnection } from "@/common/api-client";
 import { Button } from "@/components/ui/button";
 import {
@@ -17,7 +18,7 @@ function LLMSettings() {
   const [selectedModel, setSelectedModel] = useState("");
   const [status, setStatus] = useState<"loading"|"ready"|"error">("loading");
   useEffect(() => {
-    fetch("/api/llm/providers").then(r => r.json()).then(d => {
+    fetch(`${API_BASE}/api/llm/providers`).then(r => r.json()).then(d => {
       setProviders(d);
       const savedP = localStorage.getItem("llm_provider") || "ollama";
       const savedM = localStorage.getItem("llm_model") || "";

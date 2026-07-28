@@ -1,4 +1,5 @@
-﻿set windows-shell := ["pwsh.exe", "-NoLogo", "-Command"]
+set windows-shell := ["powershell.exe", "-NoProfile", "-Command"]
+import 'scripts/just/fleet.just'
 
 # ── Dashboard ─────────────────────────────────────────────────────────────────
 
@@ -28,11 +29,11 @@ serve-http:
 # Start backend + web dashboard
 dev:
     Set-Location '{{justfile_directory()}}'
-    pwsh -NoProfile -File .\start.ps1
+    powershell.exe -NoProfile -File .\start.ps1
 
 # Start rtl_tcp on the Windows host (separate terminal)
 rtl-tcp:
-    pwsh -NoProfile -File '{{justfile_directory()}}\scripts\start-rtl-tcp.ps1'
+    powershell.exe -NoProfile -File '{{justfile_directory()}}\scripts\start-rtl-tcp.ps1'
 
 # Build and start GNU Radio demod sidecar
 gnuradio-up:
@@ -75,7 +76,11 @@ audit-deps:
 
 # ── MCPB ──────────────────────────────────────────────────────────────────────
 
-# Build Claude Desktop MCPB bundle (Windows staging script)
-mcpb-pack:
-    pwsh -NoProfile -File '{{justfile_directory()}}\scripts\build-mcpb.ps1'
+# ── Native (Tauri) ──────────────────────────────────────────────────────────
+
+# Build the Tauri NSIS desktop installer (full pipeline: frontend -> Rust -> NSIS)
+build-native:
+	$env:Path = "$env:USERPROFILE\.cargo\bin;$env:Path"
+	Set-Location '{{justfile_directory()}}\native'
+	npx @tauri-apps/cli build --bundles nsis
 

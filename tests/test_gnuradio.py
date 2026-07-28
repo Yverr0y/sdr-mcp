@@ -56,9 +56,7 @@ class TestGnuradioTool:
 
         with patch("sdr_mcp.handlers.gnuradio_ops.GnuradioClient") as mock_cls:
             mock_client = MagicMock()
-            mock_client.start_demod = AsyncMock(
-                return_value={"started": True, "pid": 42, "config": {"mode": "fm"}}
-            )
+            mock_client.start_demod = AsyncMock(return_value={"started": True, "pid": 42, "config": {"mode": "fm"}})
             mock_cls.return_value = mock_client
             result = await sdr_gnuradio(operation="start", frequency_mhz=101.5)
             assert result["status"] == "success"

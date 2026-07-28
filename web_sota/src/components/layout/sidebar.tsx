@@ -31,6 +31,7 @@ const navItems: NavItem[] = [
   { label: "AI Command", icon: MessageSquare, path: "/chat" },
   { label: "Help", icon: HelpCircle, path: "/help" },
   { label: "Settings", icon: Settings, path: "/settings" },
+  { label: "Logs", icon: Activity, path: "/logs" },
 ];
 
 interface SidebarProps {

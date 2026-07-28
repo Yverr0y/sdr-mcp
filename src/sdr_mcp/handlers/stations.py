@@ -521,8 +521,12 @@ async def get_frequency_database_stats() -> dict[str, Any]:
             "conversation": {
                 "message": f"SDR Frequency Database contains {len(all_stations)} stations from {len(by_country)} countries.",
                 "key_insights": [
-                    f"Most active band: {max(by_band.items(), key=lambda x: x[1])[0]} with {max(by_band.items(), key=lambda x: x[1])[1]} stations",
-                    f"Best represented country: {max(by_country.items(), key=lambda x: x[1])[0]} with {max(by_country.items(), key=lambda x: x[1])[1]} stations",
+                    f"Most active band: {max(by_band.items(), key=lambda x: x[1])[0]} with {
+                        max(by_band.items(), key=lambda x: x[1])[1]
+                    } stations",
+                    f"Best represented country: {max(by_country.items(), key=lambda x: x[1])[0]} with {
+                        max(by_country.items(), key=lambda x: x[1])[1]
+                    } stations",
                     f"Total transmitter power: {total_power} kW across all stations",
                     f"Languages supported: {len(languages)} ({', '.join(sorted(list(languages))[:3])}...)",
                 ],

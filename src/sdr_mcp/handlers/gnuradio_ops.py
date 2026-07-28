@@ -66,7 +66,9 @@ async def handle_gnuradio_operation(
                 "status": "success",
                 "demod": result,
                 "conversation": {
-                    "message": "Demod flowgraph is running." if result.get("running") else "No active GNU Radio demod process."
+                    "message": "Demod flowgraph is running."
+                    if result.get("running")
+                    else "No active GNU Radio demod process."
                 },
             }
 

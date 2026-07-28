@@ -100,11 +100,7 @@ class SDRWebSocketServer:
                     if self.connected_clients:
                         await self._broadcast(json.dumps(spectrum_data))
 
-                    if (
-                        self.audio_enabled
-                        and self.connected_clients
-                        and not self._relay.running
-                    ):
+                    if self.audio_enabled and self.connected_clients and not self._relay.running:
                         pcm = demod_fm_mono(samples, float(self.sdr_capture.sample_rate))
                         if pcm.size:
                             await self._broadcast_binary(pcm.tobytes())

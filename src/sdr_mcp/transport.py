@@ -170,7 +170,31 @@ async def run_server_async(
         elif t == "http":
             endpoint = f"http://{h}:{p}{pa}"
             logger.info(f"Running in HTTP Streamable mode: {endpoint}")
-            await mcp_app.run_http_async(host=h, port=p, path=pa)
+            # Use uvicorn.Server directly on mcp.http_app() with CORS middleware
+            # (mcp_app.run_http_async() ignores custom middlewares — fleet pitfall)
+            import uvicorn
+            from fastapi.middleware.cors import CORSMiddleware
+
+            asgi_app = mcp_app.http_app(path=pa)
+            asgi_app.add_middleware(
+                CORSMiddleware,
+                allow_origins=[
+                    f"http://localhost:{p}",
+                    f"http://127.0.0.1:{p}",
+                    "http://localhost:10890",
+                    "http://127.0.0.1:10890",
+                    "http://tauri.localhost",
+                    "https://tauri.localhost",
+                    "tauri://localhost",
+                ],
+                allow_origin_regex=r"https?://(?:[a-zA-Z0-9-]+\.ts\.net|.*?\.tail-[a-f0-9]+\.ts\.net|tauri\.localhost|localhost|127\.0\.0\.1|192\.168\.\d{1,3}\.\d{1,3}|10\.\d{1,3}\.\d{1,3}\.\d{1,3}|100\.\d{1,3}\.\d{1,3}\.\d{1,3})(?::\d+)?$|^tauri://localhost$",
+                allow_credentials=True,
+                allow_methods=["*"],
+                allow_headers=["*"],
+            )
+            config = uvicorn.Config(asgi_app, host=h, port=p, log_level="info")
+            server = uvicorn.Server(config)
+            await server.serve()
 
         elif t == "sse":
             logger.warning("SSE mode is deprecated. Migrate to HTTP.")

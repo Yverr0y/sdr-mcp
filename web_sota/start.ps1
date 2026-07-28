@@ -1,141 +1,37 @@
+﻿# Fleet unified launcher - do not edit logic here.
+# Change fleet-start.config.ps1 at the repo root instead.
 param(
     [switch]$Headless,
     [switch]$BackendOnly,
     [switch]$FrontendOnly,
     [switch]$NoBrowser,
-    [switch]$ReuseIfRunning)
+    [switch]$ReuseIfRunning
+)
 
-$WebPort = 10890
-$McpPort = 10891
-$WebApiPort = 10892
-$ProjectRoot = Split-Path -Parent $PSScriptRoot
-
-$FleetStartPath = Join-Path $ProjectRoot "scripts\FleetStartMode.ps1"
-if (-not (Test-Path -LiteralPath $FleetStartPath)) {
-    Write-Host "ERROR: Missing vendored launcher helper: $FleetStartPath" -ForegroundColor Red
+$ErrorActionPreference = 'Stop'
+$ReposRoot = if ($env:FLEET_REPOS_ROOT) { $env:FLEET_REPOS_ROOT } else { 'D:\Dev\repos' }
+$EnginePath = Join-Path $ReposRoot 'mcp-central-docs\scripts\Invoke-FleetWebappStart.ps1'
+if (-not (Test-Path -LiteralPath $EnginePath)) {
+    Write-Host "ERROR: Missing fleet start engine: $EnginePath" -ForegroundColor Red
     exit 1
 }
-. $FleetStartPath
-$FleetStart = Initialize-FleetStartMode @PSBoundParameters
-Enter-FleetHeadlessConsole -Headless:$Headless -BackendOnly:$BackendOnly
+. $EnginePath
 
-$portResolve = @{
-    Ports      = @($WebPort, $McpPort, $WebApiPort)
-    Label      = "sdr-mcp"
-    AllowReuse = $ReuseIfRunning
-}
-if ($ReuseIfRunning) {
-    $portResolve.HealthChecks = @{
-        $WebPort = "http://127.0.0.1:$WebPort/"
-        $McpPort = "http://127.0.0.1:$McpPort/api/health"
-        $WebApiPort = "http://127.0.0.1:$WebApiPort/api/health"
+$configCandidates = @(
+    (Join-Path $PSScriptRoot 'fleet-start.config.ps1'),
+    (Join-Path (Split-Path -Parent $PSScriptRoot) 'fleet-start.config.ps1')
+)
+$configPath = $null
+foreach ($candidate in $configCandidates) {
+    if (Test-Path -LiteralPath $candidate) {
+        $configPath = $candidate
+        break
     }
 }
-$portState = Resolve-FleetPortConflict @portResolve
-if ($portState.Action -eq 'Blocked') { exit 1 }
-if ($portState.Reuse) { return }
-
-$PortHelpers = Join-Path $ProjectRoot "scripts\PortHelpers.ps1"
-if (Test-Path -LiteralPath $PortHelpers) {
-    . $PortHelpers
-    Stop-RepoConsoleScriptLock -RepoRoot $ProjectRoot -ScriptNames @("sdr-mcp")
-}
-
-
-
-# --- Prereq check (fleet standard) ---
-$env:PATH = [System.Environment]::GetEnvironmentVariable("PATH","Machine") + ";" +
-            [System.Environment]::GetEnvironmentVariable("PATH","User")
-
-function Require-Command {
-    param([string]$Cmd, [string]$WingetId, [string]$Label)
-    if (Get-Command $Cmd -ErrorAction SilentlyContinue) { return }
-    Write-Host "  $Label not found - installing via winget ..." -ForegroundColor Yellow
-    if (-not (Get-Command winget -ErrorAction SilentlyContinue)) {
-        Write-Host "ERROR: winget unavailable. Install $Label manually ($WingetId)." -ForegroundColor Red
-        exit 1
-    }
-    winget install --id $WingetId --silent --accept-source-agreements --accept-package-agreements
-    $env:PATH = [System.Environment]::GetEnvironmentVariable("PATH","Machine") + ";" +
-                [System.Environment]::GetEnvironmentVariable("PATH","User")
-    if (-not (Get-Command $Cmd -ErrorAction SilentlyContinue)) {
-        Write-Host "Installed $Label but '$Cmd' still not in PATH. Reopen PowerShell and retry." -ForegroundColor Yellow
-        exit 1
-    }
-}
-
-Require-Command -Cmd "node" -WingetId "OpenJS.NodeJS.LTS" -Label "Node.js"
-Require-Command -Cmd "uv" -WingetId "astral-sh.uv" -Label "uv"
-
-if (-not (Get-Command uv -ErrorAction SilentlyContinue)) {
-    $uvFallback = Join-Path $env:USERPROFILE ".local\bin\uv.exe"
-    if (Test-Path $uvFallback) {
-        $env:PATH = (Split-Path $uvFallback -Parent) + ";" + $env:PATH
-    }
-}
-if (-not (Get-Command uv -ErrorAction SilentlyContinue)) {
-    Write-Host "ERROR: uv not found. Install from https://docs.astral.sh/uv/" -ForegroundColor Red
+if (-not $configPath) {
+    Write-Host 'ERROR: Missing fleet-start.config.ps1 (repo root or beside start.ps1).' -ForegroundColor Red
     exit 1
 }
 
-Write-Host "Syncing Python deps (uv sync) ..." -ForegroundColor Cyan
-Push-Location $ProjectRoot
-try {
-    uv sync --extra dev
-    if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-} finally {
-    Pop-Location
-}
+Start-FleetWebapp @PSBoundParameters -ConfigPath $configPath -LauncherRoot $PSScriptRoot
 
-Start-Sleep -Milliseconds 400
-
-Write-Host "Starting sdr-mcp web dashboard..." -ForegroundColor Cyan
-
-Set-Location $PSScriptRoot
-if (-not (Test-Path "node_modules")) {
-    Write-Host "Installing frontend dependencies..." -ForegroundColor Yellow
-    npm install
-}
-
-if ($FleetStart.RunBackend) {
-    Write-Host "Starting MCP + Web API (ports $McpPort / $WebApiPort)..." -ForegroundColor Cyan
-    $backendCmd = "Set-Location '$ProjectRoot'; `$env:FASTMCP_LOG_LEVEL='WARNING'; uv run sdr-mcp serve --http"
-    Start-FleetDetachedShell -Label "sdr-mcp-backend" -Exe "powershell.exe" `
-        -Args @("-NoProfile", "-NoExit", "-Command", $backendCmd) `
-        -WorkingDirectory $ProjectRoot -WindowStyle $FleetStart.WindowStyle
-
-    $healthUrl = "http://127.0.0.1:$WebApiPort/api/health"
-    $attempt = 0
-    while ($attempt -lt 15) {
-        try {
-            $null = Invoke-WebRequest -Uri $healthUrl -UseBasicParsing -TimeoutSec 3 -ErrorAction SilentlyContinue
-            Write-Host "Backend ready at $healthUrl" -ForegroundColor Green
-            break
-        } catch {
-            Start-Sleep -Seconds 2
-            $attempt++
-        }
-    }
-    if ($attempt -ge 15) {
-        Write-Host "Web API did not respond in time. Check the backend window for bind errors." -ForegroundColor Yellow
-    }
-}
-
-if (-not $FleetStart.RunFrontend) {
-    while ($true) { Start-Sleep -Seconds 60 }
-}
-
-if (-not $FleetStart.SkipBrowser) {
-    $frontendUrl = "http://127.0.0.1:$WebPort/"
-    $pollAndOpen = "for (`$i = 0; `$i -lt 60; `$i++) { try { `$null = Invoke-WebRequest -Uri '$frontendUrl' -TimeoutSec 2 -UseBasicParsing -ErrorAction Stop; Start-Process '$frontendUrl'; exit } catch { Start-Sleep -Seconds 1 } }"
-    Start-Process powershell -ArgumentList "-NoProfile", "-WindowStyle", "Hidden", "-Command", $pollAndOpen
-}
-
-Write-Host "Starting Vite frontend on port $WebPort ..." -ForegroundColor Green
-Write-Host "Browser will open automatically when Vite is ready." -ForegroundColor Gray
-for ($i = 0; $i -lt 10; $i++) {
-    $listeners = Get-NetTCPConnection -LocalPort $WebPort -ErrorAction SilentlyContinue
-    if (-not $listeners) { break }
-    Start-Sleep -Milliseconds 500
-}
-npm run dev -- --port $WebPort --host 127.0.0.1 --strictPort

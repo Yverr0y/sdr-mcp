@@ -35,9 +35,7 @@ class MockIQGenerator:
         t = np.arange(num_samples, dtype=np.float64) / sample_rate + self._time_offset
         self._time_offset += num_samples / sample_rate
 
-        noise = (
-            self._rng.standard_normal(num_samples) + 1j * self._rng.standard_normal(num_samples)
-        ) * 0.01
+        noise = (self._rng.standard_normal(num_samples) + 1j * self._rng.standard_normal(num_samples)) * 0.01
 
         signal = np.zeros(num_samples, dtype=np.complex128)
         for offset_hz, amplitude in _DEFAULT_TONES:

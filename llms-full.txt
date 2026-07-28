@@ -1,0 +1,56 @@
+# SDR-MCP Full Reference
+
+SDR (Software Defined Radio) MCP server for RTL-SDR: live spectrum, waterfall, FM audio, station databases, and a GNU Radio demod sidecar.
+
+## Architecture
+
+```
+Claude / Cursor ← MCP stdio → SDR MCP Server ← WebSocket → Web dashboard
+                                    ↓
+                            RTL-SDR (USB) or rtl_tcp
+                                    ↓
+                            GNU Radio sidecar (Docker)
+```
+
+## Ports
+
+| Service | Port |
+|---------|------|
+| Frontend (Vite React) | 10890 |
+| MCP HTTP (/mcp) | 10891 |
+| Web API (REST bridge) | 10892 |
+
+## MCP Tools
+
+### `sdr_device`
+
+Device management. Operations: list, initialize, status, tune, scan, health, mock_mode.
+
+### `sdr_spectrum`
+
+Spectrum analysis. Operations: spectrum, waterfall, websocket.
+
+### `sdr_stations`
+
+Radio station database. Operations: search, by_band, schedule, stats.
+
+### `sdr_online`
+
+Online radio databases. Operations: radio-browser, signal_id.
+
+### `sdr_gnuradio`
+
+GNU Radio demod sidecar. Operations: FM/AM/SSB demod.
+
+### `sdr_agentic_assist`
+
+Multi-step research workflows via MCP sampling.
+
+## Configuration
+
+| Variable | Purpose | Default |
+|----------|---------|---------|
+| `SDR_MCP_MOCK` | Mock mode (auto/enable/disable) | auto |
+| `SDR_WEB_API_PORT` | REST bridge port | 10892 |
+| `MCP_TRANSPORT` | Transport mode | stdio |
+| `MCP_PORT` | HTTP port override | 10891 |
