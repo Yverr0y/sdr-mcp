@@ -161,7 +161,7 @@ function Invoke-DaemonRecovery {
     Write-Log "INFO" "WSL docker-desktop state: $wslState"
 
     if (-not $ddProcess) {
-        Write-Log "RECOVER" "Docker Desktop not running — attempting to start..."
+        Write-Log "RECOVER" "Docker Desktop not running - attempting to start..."
         if (Start-DockerDesktop) {
             Write-Log "INFO" "Waiting 60s for Docker Desktop initialization..."
             Start-Sleep -Seconds 60
