@@ -1,4 +1,4 @@
-use std::fs::{self, OpenOptions};
+﻿use std::fs::{self, OpenOptions};
 use std::io::Write;
 use std::net::{SocketAddr, TcpStream};
 use std::path::PathBuf;
@@ -15,7 +15,7 @@ pub struct BackendProcess(pub Mutex<Option<Child>>);
 
 // -- PER-REPO: Customize these constants --
 const BACKEND_NAME: &str = "sdr-mcp-backend.exe";
-const BACKEND_PORT: u16 = 10892;
+const BACKEND_PORT: u16 = 11169;
 const BACKEND_TAG: &str = "sdr-mcp-backend-x86_64-pc-windows-msvc.exe";
 const ENV_PORT: &str = "PORT";
 const ENV_HOST: &str = "HOST";
