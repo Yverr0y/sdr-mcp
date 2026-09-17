@@ -1,27 +1,27 @@
-# sdr-mcp — Codebase Assessment
+# sdr-mcp -- Codebase Assessment
 _Generated 2026-06-08 by Claude Sonnet 4.6_
 
 ---
 
 ## Summary
 
-`sdr-mcp` is a mature, well-structured FastMCP 3.4 server for RTL-SDR hardware. The architecture is sound, the portmanteau pattern is consistently applied, and the dual-transport + web API design is solid. The main blockers are hardware dependency friction, a split Python environment (3.12 in venv vs 3.13 on Goliath), a web frontend that only partially connects to the backend, and several incomplete feature areas documented in the code but not yet wired up. This is a functional v0.4.x server — not a stub — but meaningful gaps exist between what the docs promise and what runs.
+`sdr-mcp` is a mature, well-structured FastMCP 3.4 server for RTL-SDR hardware. The architecture is sound, the portmanteau pattern is consistently applied, and the dual-transport + web API design is solid. The main blockers are hardware dependency friction, a split Python environment (3.12 in venv vs 3.13 on Goliath), a web frontend that only partially connects to the backend, and several incomplete feature areas documented in the code but not yet wired up. This is a functional v0.4.x server -- not a stub -- but meaningful gaps exist between what the docs promise and what runs.
 
 ---
 
 ## What Works Well
 
-**Architecture is correct and idiomatic.** The three-layer split — `server.py` → `tools/` (portmanteau) → `handlers/` (business logic) — follows fleet standards cleanly. Adding a new operation to any tool requires touching exactly one handler file; the portmanteau routing is uniform across all six tools.
+**Architecture is correct and idiomatic.** The three-layer split -- `server.py` → `tools/` (portmanteau) → `handlers/` (business logic) -- follows fleet standards cleanly. Adding a new operation to any tool requires touching exactly one handler file; the portmanteau routing is uniform across all six tools.
 
 **Mock mode is a first-class citizen.** `sdr_device(operation='mock_mode')` and the `should_use_mock()` path in `handlers/state.py` mean the server is usable without USB hardware, which matters for CI and for running from Tokyo via RustDesk.
 
-**Dual transport is done right.** `transport.py` is a reusable, well-commented module with proper priority resolution (explicit → CLI → env → default). Port `10891` is registered in WEBAPP_PORTS. The `asyncio.to_thread` wrapping in `capture.py` means blocking pyrtlsdr calls don't freeze the event loop.
+**Dual transport is done right.** `transport.py` is a reusable, well-commented module with proper priority resolution (explicit → CLI → env → default). Port `11119` is registered in WEBAPP_PORTS. The `asyncio.to_thread` wrapping in `capture.py` means blocking pyrtlsdr calls don't freeze the event loop.
 
 **Agentic tools are real.** `sdr_agentic_assist` and `sdr_sampling_hint` use `ctx.sample` (SEP-1577), include proper recovery_options when sampling is unavailable, and reference concrete tool names rather than vague descriptions. These are copy-paste-quality patterns for the rest of the fleet.
 
 **CI is configured and reasonable.** The GitHub Actions workflow runs on `windows-latest`, uses `uv`, covers both Python linting/tests and the web frontend's Biome lint. The concurrency group cancels stale runs.
 
-**Documentation coverage is above average.** `docs/` has nine separate files covering architecture, hardware variants, mock mode, GNU Radio, and the REST API. `AGENTS.md` is present and accurate. The `assets/prompts/` directory has structured examples — a genuine asset for LLM-driven use.
+**Documentation coverage is above average.** `docs/` has nine separate files covering architecture, hardware variants, mock mode, GNU Radio, and the REST API. `AGENTS.md` is present and accurate. The `assets/prompts/` directory has structured examples -- a genuine asset for LLM-driven use.
 
 **Web API is surprisingly complete.** `web_api.py` implements a real threaded HTTP server with CORS, `/api/status`, `/api/health`, `/api/chat` (NLU routing), and `/api/invoke`. The `parse_chat_command` NLU function is a reasonable first pass, though brittle.
 
@@ -32,7 +32,7 @@ _Generated 2026-06-08 by Claude Sonnet 4.6_
 ### Hard gaps (functionality broken or missing)
 
 **1. numpy upper bound too tight.**
-`pyproject.toml` pins `numpy>=1.21.0,<2.0.0`. NumPy 2.x is stable and in wide use; this pin will cause dependency conflicts with any downstream package that has moved on. The `processor.py` FFT code uses no deprecated numpy 1.x APIs — the bound should be `<3.0.0`.
+`pyproject.toml` pins `numpy>=1.21.0,<2.0.0`. NumPy 2.x is stable and in wide use; this pin will cause dependency conflicts with any downstream package that has moved on. The `processor.py` FFT code uses no deprecated numpy 1.x APIs -- the bound should be `<3.0.0`.
 
 **2. Python version mismatch.**
 The `.venv` contains CPython 3.12 pyc files (`__init__.cpython-312.pyc` throughout). Goliath's system Python is 3.13, and `pyproject.toml` specifies `requires-python = ">=3.12"` but the `[tool.mypy]` and `[tool.black]` sections target 3.10. This creates three different version targets in one file. The venv was clearly built with 3.12 but production runs 3.13. Either pin `.python-version` to 3.12 and stick to it, or test on 3.13 and update the caps.
@@ -41,12 +41,12 @@ The `.venv` contains CPython 3.12 pyc files (`__init__.cpython-312.pyc` througho
 `WebApiHandler.do_GET` and `do_POST` call `asyncio.run(...)` synchronously. This creates a new event loop per HTTP request inside a thread. It works, but it means no shared state with the MCP server's event loop, which breaks anything that relies on in-memory shared state between HTTP and MCP (e.g., a live spectrum buffer). The fix is to hold a reference to the main event loop and use `asyncio.run_coroutine_threadsafe()`, or switch to a proper ASGI server (FastAPI/Starlette) as the fleet standard suggests.
 
 **4. `web_sota` frontend is partially connected.**
-The React frontend in `web_sota/src/` has pages for `spectrum.tsx`, `waterfall.tsx`, `stations.tsx`, `chat.tsx`, `tools.tsx`, `apps.tsx`, and `dashboard.tsx`. The common API client in `web_sota/src/common/api-client.ts` calls the web API. But `use-sdr-ws.ts` references a WebSocket endpoint, and `websocket_server.py` exists in `src/sdr_mcp/` but the tool registration for `start_websocket` / `stop_websocket` calls `start_websocket_server()` from handlers — whether that handler is actually implemented or throws NotImplementedError is unverified without reading it. This is a likely stub path.
+The React frontend in `web_sota/src/` has pages for `spectrum.tsx`, `waterfall.tsx`, `stations.tsx`, `chat.tsx`, `tools.tsx`, `apps.tsx`, and `dashboard.tsx`. The common API client in `web_sota/src/common/api-client.ts` calls the web API. But `use-sdr-ws.ts` references a WebSocket endpoint, and `websocket_server.py` exists in `src/sdr_mcp/` but the tool registration for `start_websocket` / `stop_websocket` calls `start_websocket_server()` from handlers -- whether that handler is actually implemented or throws NotImplementedError is unverified without reading it. This is a likely stub path.
 
 **5. `audio_stream.py` and `fm_demod.py` have no corresponding tool operations.**
 Both files exist in `src/sdr_mcp/` with pyc caches, but neither is exposed via any portmanteau tool. `sdr_gnuradio` handles demodulation via the GNU Radio sidecar; the native Python FM demod in `fm_demod.py` appears to be dead code or an unfinished alternative path.
 
-**6. `online.py` tool — online radio browser dependency.**
+**6. `online.py` tool -- online radio browser dependency.**
 `sdr_online` calls the Radio Browser API (`api.radio-browser.info`) for live station lookup. The `.llms-fetch-mcp/` cache directory contains fetched API schemas, suggesting this was built at some point, but there is no fallback when the API is unreachable and no caching layer beyond what was fetched during dev. Offline/airplane use will silently fail.
 
 **7. `scan_frequencies` is likely slow and blocking.**
@@ -76,7 +76,7 @@ Build artifacts should be in `.gitignore`, not committed. The `.mcpbignore` file
 
 - `pyproject.toml` `requires-python = ">=3.12"` but classifiers list 3.10 and 3.11, which can't satisfy the constraint.
 - `web_sota/start.ps1` and `web_sota/start.bat` duplicate the root-level start scripts; unclear if both are meant to be entry points.
-- `docker/gnuradio/` has a Dockerfile and Python scripts for a GNU Radio container, but there's no `docker-compose.yml` service referencing it (the `docker-compose.yml` at root likely covers a different service — needs verification).
+- `docker/gnuradio/` has a Dockerfile and Python scripts for a GNU Radio container, but there's no `docker-compose.yml` service referencing it (the `docker-compose.yml` at root likely covers a different service -- needs verification).
 - `.llms-fetch-mcp/` is not in `.gitignore` and is committed to the repo, adding noise.
 
 ---
@@ -84,20 +84,20 @@ Build artifacts should be in `.gitignore`, not committed. The `.mcpbignore` file
 ## Priority Action List for Cursor
 
 ```
-P1 — Fix asyncio.run() in web_api.py request handlers (shared event loop or ASGI)
-P1 — Verify websocket_server handler is implemented, not stub
-P1 — Verify scan_frequencies is properly async
-P2 — Relax numpy bound to <3.0.0
-P2 — Pin .python-version to 3.12 or update everything to 3.13 consistently
-P2 — Add Require-Command bootstrap to start.ps1
-P2 — Remove black/isort from dev deps (ruff covers both)
-P2 — Add .mcpb and dist/ to .gitignore; delete committed artifact
-P3 — Expose audio_stream / fm_demod via sdr_spectrum tool or remove dead code
-P3 — Add offline fallback / cache layer to sdr_online handler
-P3 — Add coverage report step to CI
-P3 — Remove 3.10/3.11 classifiers from pyproject.toml
-P3 — Clarify platform restriction in manifest (win32) vs README note
-P3 — Add .llms-fetch-mcp/ to .gitignore
+P1 -- Fix asyncio.run() in web_api.py request handlers (shared event loop or ASGI)
+P1 -- Verify websocket_server handler is implemented, not stub
+P1 -- Verify scan_frequencies is properly async
+P2 -- Relax numpy bound to <3.0.0
+P2 -- Pin .python-version to 3.12 or update everything to 3.13 consistently
+P2 -- Add Require-Command bootstrap to start.ps1
+P2 -- Remove black/isort from dev deps (ruff covers both)
+P2 -- Add .mcpb and dist/ to .gitignore; delete committed artifact
+P3 -- Expose audio_stream / fm_demod via sdr_spectrum tool or remove dead code
+P3 -- Add offline fallback / cache layer to sdr_online handler
+P3 -- Add coverage report step to CI
+P3 -- Remove 3.10/3.11 classifiers from pyproject.toml
+P3 -- Clarify platform restriction in manifest (win32) vs README note
+P3 -- Add .llms-fetch-mcp/ to .gitignore
 ```
 
 ---

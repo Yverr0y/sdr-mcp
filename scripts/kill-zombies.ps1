@@ -1,7 +1,7 @@
 # sdr-mcp fleet zombie kill (START_SCRIPT_STANDARD / FleetStartMode)
 # Clears listeners on dashboard ports and stale repo console scripts.
 param(
-    [int[]]$Ports = @(10890, 10891, 10892)
+    [int[]]$Ports = @(11118, 11119, 10892)
 )
 
 $RepoRoot = Split-Path -Parent $PSScriptRoot

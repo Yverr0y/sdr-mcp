@@ -58,7 +58,7 @@ Browser → ws://localhost:8765 → SDRWebSocketServer
 
 ### Web Dashboard Flow
 ```
-Browser → Vite dev server (10890) → React SPA
+Browser → Vite dev server (11118) → React SPA
                                        ↓
          +----------+----------+----------+----------+
          |          |          |          |          |
@@ -75,7 +75,7 @@ Browser → Vite dev server (10890) → React SPA
 | Mode | Usage | Port |
 |------|-------|------|
 | STDIO | Claude Desktop, CLI tools | stdin/stdout |
-| HTTP | Web dashboard, REST clients | 10891 |
+| HTTP | Web dashboard, REST clients | 11119 |
 | WebSocket | Real-time spectrum streaming | 8765 |
 
 The transport module (`transport.py`) supports all three modes. Mode is selected

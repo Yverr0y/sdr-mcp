@@ -17,7 +17,7 @@ SDR-MCP turns a $35 RTL-SDR USB dongle into an AI-accessible radio receiver. It 
 
 ### Architecture
 
-The server runs as a FastMCP 3.4+ instance exposing seven portmanteau tools. It supports dual transport: STDIO (Claude Desktop) and HTTP Streamable (web dashboards, Cursor). A REST bridge on port 10892 provides a chat API for the React frontend on port 10890.
+The server runs as a FastMCP 3.4+ instance exposing seven portmanteau tools. It supports dual transport: STDIO (Claude Desktop) and HTTP Streamable (web dashboards, Cursor). A REST bridge on port 10892 provides a chat API for the React frontend on port 11118.
 
 ```
 Claude Desktop / Cursor  <--MCP/STDIO-->  sdr-mcp (FastMCP 3.4)
@@ -28,7 +28,7 @@ Claude Desktop / Cursor  <--MCP/STDIO-->  sdr-mcp (FastMCP 3.4)
                                               ├── rtl_tcp (port 1234)
                                               ├── UDP Audio Relay (port 7355)
                                               └── REST Web API (port 10892)
-                                                   └── React dashboard (port 10890)
+                                                   └── React dashboard (port 11118)
 ```
 
 When no RTL-SDR is connected, the server automatically switches to `MockSDRCapture`, which generates synthetic IQ samples with drifting tones. The FFT pipeline, waterfall, and WebSocket streaming all work in this mode with no code changes.
@@ -566,7 +566,7 @@ await sdr_sampling_hint(topic="longwave radio in Central Europe")
 |----------|---------|-------------|
 | SDR_MCP_MOCK | "auto" | Mock mode: "enable", "disable", "auto" (mock when no dongle) |
 | MCP_TRANSPORT | "stdio" | Transport mode: "stdio" or "http" |
-| MCP_PORT | 10891 | MCP HTTP port |
+| MCP_PORT | 11119 | MCP HTTP port |
 | MCP_HOST | "127.0.0.1" | MCP HTTP bind address |
 | MCP_PATH | "/mcp" | MCP HTTP endpoint path |
 | SDR_WEB_API_PORT | 10892 | REST bridge port for web dashboard |
@@ -579,8 +579,8 @@ await sdr_sampling_hint(topic="longwave radio in Central Europe")
 
 | Port | Service |
 |------|---------|
-| 10890 | React frontend dashboard |
-| 10891 | MCP HTTP streamable transport |
+| 11118 | React frontend dashboard |
+| 11119 | MCP HTTP streamable transport |
 | 10892 | REST Web API (chat/status bridge) |
 | 8765 | WebSocket spectrum streaming |
 | 7355 | UDP audio relay (PCM from GNU Radio) |

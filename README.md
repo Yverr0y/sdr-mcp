@@ -17,7 +17,7 @@
 [Software Defined Radio](docs/SDR_TECHNOLOGY.md) (SDR) turns RF into data your PC can plot and play.
 This repo is a [Model Context Protocol](https://modelcontextprotocol.io) server for RTL-SDR: live **spectrum**,
 **waterfall**, **FM audio**, station databases, and a **GNU Radio** demod sidecar. Works with Cursor,
-Claude Desktop, or the built-in React dashboard at http://127.0.0.1:10890/.
+Claude Desktop, or the built-in React dashboard at http://127.0.0.1:11118/.
 
 ---
 

@@ -7,4 +7,4 @@ if (-not (Test-Path -LiteralPath $FleetStartPath)) {
 }
 . $FleetStartPath
 
-if (-not (Stop-FleetPortListeners -Ports @(10890, 10891, 10892) -Label "sdr-mcp")) { exit 1 }
+if (-not (Stop-FleetPortListeners -Ports @(11118, 11119, 10892) -Label "sdr-mcp")) { exit 1 }

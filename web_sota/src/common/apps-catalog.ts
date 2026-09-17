@@ -26,8 +26,8 @@ export const APPS_CATALOG: AppEntry[] = [
     label: "SDR MCP",
     description: "Software Defined Radio spectrum analysis and control",
     icon: Activity,
-    url: "http://localhost:10890",
-    port: 10890,
+    url: "http://localhost:11118",
+    port: 11118,
     tags: ["sdr", "radio", "hardware"],
   },
   {

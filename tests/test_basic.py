@@ -246,7 +246,7 @@ class TestTransport:
         cfg = get_transport_config()
         assert cfg["transport"] == "stdio"
         assert cfg["host"] == "127.0.0.1"
-        assert cfg["port"] == 10891
+        assert cfg["port"] == 11119
         assert cfg["path"] == "/mcp"
 
     def test_create_argument_parser(self):

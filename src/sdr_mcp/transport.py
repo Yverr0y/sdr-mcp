@@ -6,7 +6,7 @@ Provides unified transport for STDIO, HTTP Streamable, and SSE modes.
 Environment Variables:
     MCP_TRANSPORT: Transport mode (stdio, http). Default: stdio
     MCP_HOST: Bind address for HTTP. Default: 127.0.0.1
-    MCP_PORT: Port for HTTP. Default: 10891 (fleet)
+    MCP_PORT: Port for HTTP. Default: 11119 (fleet)
     MCP_PATH: HTTP endpoint path. Default: /mcp
 """
 
@@ -32,7 +32,7 @@ def get_transport_config() -> dict:
     return {
         "transport": os.getenv(ENV_TRANSPORT, "stdio").lower(),
         "host": os.getenv(ENV_HOST, "127.0.0.1"),
-        "port": int(os.getenv(ENV_PORT, "10891")),
+        "port": int(os.getenv(ENV_PORT, "11119")),
         "path": os.getenv(ENV_PATH, "/mcp"),
     }
 
@@ -48,7 +48,7 @@ def create_argument_parser(server_name: str) -> argparse.ArgumentParser:
 Environment Variables:
   {ENV_TRANSPORT}    Transport mode: stdio, http (default: stdio)
   {ENV_HOST}         Bind address (default: 127.0.0.1)
-  {ENV_PORT}         Port number (default: 10891)
+  {ENV_PORT}         Port number (default: 11119)
   {ENV_PATH}         HTTP endpoint path (default: /mcp)
 """,
     )
@@ -100,7 +100,7 @@ def run_server(
     server_name: str = "mcp-server",
     transport: str | None = None,
     host: str = "127.0.0.1",
-    port: int = 10891,
+    port: int = 11119,
     path: str = "/mcp",
 ) -> None:
     """
@@ -124,7 +124,7 @@ async def run_server_async(
     server_name: str = "mcp-server",
     transport: str | None = None,
     host: str = "127.0.0.1",
-    port: int = 10891,
+    port: int = 11119,
     path: str = "/mcp",
 ) -> None:
     """
@@ -171,7 +171,7 @@ async def run_server_async(
             endpoint = f"http://{h}:{p}{pa}"
             logger.info(f"Running in HTTP Streamable mode: {endpoint}")
             # Use uvicorn.Server directly on mcp.http_app() with CORS middleware
-            # (mcp_app.run_http_async() ignores custom middlewares — fleet pitfall)
+            # (mcp_app.run_http_async() ignores custom middlewares - fleet pitfall)
             import uvicorn
             from fastapi.middleware.cors import CORSMiddleware
 
@@ -181,8 +181,8 @@ async def run_server_async(
                 allow_origins=[
                     f"http://localhost:{p}",
                     f"http://127.0.0.1:{p}",
-                    "http://localhost:10890",
-                    "http://127.0.0.1:10890",
+                    "http://localhost:11118",
+                    "http://127.0.0.1:11118",
                     "http://tauri.localhost",
                     "https://tauri.localhost",
                     "tauri://localhost",

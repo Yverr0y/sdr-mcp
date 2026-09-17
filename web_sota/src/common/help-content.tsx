@@ -209,8 +209,8 @@ export const HELP_TABS: HelpTab[] = [
           </li>
         </ul>
         <p className="text-slate-400">
-          Ports: Web UI <span className="font-mono">10890</span>, MCP HTTP{" "}
-          <span className="font-mono">10891</span>, Web API{" "}
+          Ports: Web UI <span className="font-mono">11118</span>, MCP HTTP{" "}
+          <span className="font-mono">11119</span>, Web API{" "}
           <span className="font-mono">10892</span>, WebSocket{" "}
           <span className="font-mono">8765</span>.
         </p>
@@ -319,7 +319,7 @@ just dev`}
         </p>
         <p>
           Launch UI: <span className="font-mono">web_sota\\start.bat</span> or{" "}
-          open http://127.0.0.1:10890/
+          open http://127.0.0.1:11118/
         </p>
         <p>{docLink("docs/INSTALL.md", "Install guide")}</p>
       </div>

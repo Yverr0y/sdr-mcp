@@ -58,7 +58,7 @@ For continuous spectrum monitoring in the web dashboard:
 sdr_spectrum(operation="start_websocket")
 ```
 
-This starts broadcasting FFT data in real time to browser clients. The dashboard at http://127.0.0.1:10890/ shows a live spectrum and waterfall view.
+This starts broadcasting FFT data in real time to browser clients. The dashboard at http://127.0.0.1:11118/ shows a live spectrum and waterfall view.
 
 ### Step 6: Check the waterfall
 
@@ -168,7 +168,7 @@ For real-time waterfall visualization:
 sdr_spectrum(operation="start_websocket")
 ```
 
-The WebSocket server broadcasts FFT data as soon as it is captured. The dashboard at http://127.0.0.1:10890/ renders this as a scrolling waterfall with color-coded signal strength.
+The WebSocket server broadcasts FFT data as soon as it is captured. The dashboard at http://127.0.0.1:11118/ renders this as a scrolling waterfall with color-coded signal strength.
 
 ### What to look for in a waterfall
 
@@ -678,13 +678,13 @@ The scan operation is limited to 100 steps. Increase `step_size` or narrow the f
 
 1. Is the frontend dev server running? `cd web_sota && npm run dev`.
 2. Is the REST bridge running? Check that `--no-web-api` was not passed.
-3. Default frontend URL: http://127.0.0.1:10890/.
+3. Default frontend URL: http://127.0.0.1:11118/.
 4. Default REST bridge: http://127.0.0.1:10892/.
 
 ### Port conflicts
 
-The server uses ports 10890-10892. If any are in use:
-1. Kill the conflicting process: `Get-NetTCPConnection -LocalPort 10890 | Stop-Process`.
+The server uses ports 11118-10892. If any are in use:
+1. Kill the conflicting process: `Get-NetTCPConnection -LocalPort 11118 | Stop-Process`.
 2. Override with environment variables: `MCP_PORT=10895 SDR_WEB_API_PORT=10896`.
 3. The `start.ps1` script clears ports automatically.
 
@@ -756,7 +756,7 @@ Note: BBC Radio 4 and ORF both broadcast on 198 kHz but at different transmitter
 
 ## Tutorial 11: Use the Web API REST Bridge
 
-The web dashboard at http://127.0.0.1:10890/ communicates with the backend through a REST API bridge on port 10892. You can send natural language chat commands or direct tool invocations to this API.
+The web dashboard at http://127.0.0.1:11118/ communicates with the backend through a REST API bridge on port 10892. You can send natural language chat commands or direct tool invocations to this API.
 
 ### Chat endpoint
 

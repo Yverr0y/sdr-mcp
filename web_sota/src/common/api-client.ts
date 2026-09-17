@@ -5,7 +5,7 @@ export function getApiBase(): string {
   if (stored) {
     return stored;
   }
-  if (typeof window !== "undefined" && window.location.port === "10890") {
+  if (typeof window !== "undefined" && window.location.port === "11118") {
     return "";
   }
   return DEFAULT_API_BASE;

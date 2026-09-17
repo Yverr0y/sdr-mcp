@@ -25,7 +25,7 @@ def cli():
 
 @cli.command()
 @click.option("--http", "http_mode", is_flag=True, help="Run in HTTP Streamable mode")
-@click.option("--port", type=int, default=None, help="Port for HTTP mode (default: 10891)")
+@click.option("--port", type=int, default=None, help="Port for HTTP mode (default: 11119)")
 @click.option("--host", default=None, help="Host for HTTP mode (default: 127.0.0.1)")
 @click.option("--web-api-port", type=int, default=None, help="REST bridge port (default: 10892 or SDR_WEB_API_PORT)")
 @click.option("--no-web-api", is_flag=True, help="Disable REST bridge for dashboard (HTTP mode only)")
@@ -53,7 +53,7 @@ def serve(http_mode: bool, port: int | None, host: str | None, no_web_api: bool,
     transport_mode = "http" if http_mode else os.getenv("MCP_TRANSPORT", "stdio")
     if transport_mode == "http":
         console.print(
-            f"Starting MCP server in HTTP mode on http://{host or '127.0.0.1'}:{port or 10891}/mcp ...", style="yellow"
+            f"Starting MCP server in HTTP mode on http://{host or '127.0.0.1'}:{port or 11119}/mcp ...", style="yellow"
         )
         if not no_web_api:
             api_host, default_api_port = get_web_api_config()
@@ -62,11 +62,11 @@ def serve(http_mode: bool, port: int | None, host: str | None, no_web_api: bool,
                 start_web_api_thread(host=api_host, port=api_port)
             except OSError as exc:
                 console.print(
-                    f"\nWeb API could not bind http://{api_host}:{api_port} — {exc}",
+                    f"\nWeb API could not bind http://{api_host}:{api_port} - {exc}",
                     style="bold red",
                 )
                 console.print(
-                    "Port likely in use. Close other sdr-mcp windows or run start.ps1 (it clears ports 10890-10892).",
+                    "Port likely in use. Close other sdr-mcp windows or run start.ps1 (it clears ports 11118-10892).",
                     style="yellow",
                 )
                 console.print(
@@ -84,7 +84,7 @@ def serve(http_mode: bool, port: int | None, host: str | None, no_web_api: bool,
             server_name="sdr-mcp",
             transport=transport_mode,
             host=host or "127.0.0.1",
-            port=port or 10891,
+            port=port or 11119,
         )
     except KeyboardInterrupt:
         console.print("\nSDR MCP Server stopped", style="red")

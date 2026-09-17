@@ -6,7 +6,7 @@ export function Apps() {
   const apps = [
     {
       name: "SDR MCP",
-      port: 10890,
+      port: 11118,
       description: "Software Defined Radio spectrum analysis and control",
     },
     {

@@ -126,7 +126,7 @@ Then add to your `claude_desktop_config.json`:
 ### HTTP Mode (Web Dashboard)
 
 ```bash
-sdr-mcp serve --http --port 10891
+sdr-mcp serve --http --port 11119
 ```
 
 ---
@@ -139,9 +139,9 @@ npm install
 npm run dev
 ```
 
-Opens at `http://localhost:10890`. The dashboard connects to:
+Opens at `http://localhost:11118`. The dashboard connects to:
 - WebSocket on `ws://localhost:8765` for real-time spectrum data
-- MCP HTTP on `http://localhost:10891/mcp` for tool calls
+- MCP HTTP on `http://localhost:11119/mcp` for tool calls
 
 ---
 

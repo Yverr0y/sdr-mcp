@@ -131,7 +131,7 @@ All notable changes to this project will be documented in this file.
 - **Self-reference in app catalog**: SDR MCP entry in APPS_CATALOG
 
 ### Changed
-- **Ports**: frontend 10890, backend 10891 (from 10706/10916). Updated
+- **Ports**: frontend 11118, backend 11119 (from 10706/10916). Updated
   `vite.config.ts`, `transport.py`, `start.ps1`, `apps.tsx`
 - **Python deps**: `fastmcp>=3.2.0`, added `httpx>=0.27.0`
 - **CLI transport**: `sdr-mcp serve` now accepts `--http`, `--port`, `--host`

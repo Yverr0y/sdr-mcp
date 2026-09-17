@@ -36,4 +36,4 @@ You are connected to **sdr-mcp** v0.4.2 — a FastMCP 3.4 server for Software De
 ## Transport
 
 - Claude Desktop uses **stdio** (`python -m sdr_mcp.cli serve`).
-- HTTP dashboard mode (ports 10890–10892) is separate from the MCPB bundle.
+- HTTP dashboard mode (ports 11118–10892) is separate from the MCPB bundle.

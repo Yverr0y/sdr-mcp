@@ -10,6 +10,6 @@
 
 ## Quick Facts
 
-- Ports: 10890 (frontend), 10891 (MCP HTTP /mcp), 10892 (web API)
+- Ports: 11118 (frontend), 11119 (MCP HTTP /mcp), 10892 (web API)
 - 6 portmanteau tools: sdr_device, sdr_spectrum, sdr_stations, sdr_online, sdr_gnuradio, sdr_agentic_assist
 - Hardware: RTL-SDR (USB), rtl_tcp, GNU Radio Docker sidecar

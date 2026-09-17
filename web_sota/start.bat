@@ -3,7 +3,7 @@ TITLE Fleet Launcher - SDR MCP
 COLOR 0B
 SETLOCAL EnableDelayedExpansion
 
-:: From mcp-central-docs/starts: launch sdr-mcp dashboard (Vite 10890, MCP 10891, Web API 10892)
+:: From mcp-central-docs/starts: launch sdr-mcp dashboard (Vite 11118, MCP 11119, Web API 10892)
 
 set "REPO_PATH=D:\Dev\repos\sdr-mcp"
 set "START_BAT=%REPO_PATH%\web_sota\start.bat"
